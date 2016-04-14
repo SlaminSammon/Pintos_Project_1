@@ -27,9 +27,11 @@ void timer_udelay (int64_t microseconds);
 void timer_ndelay (int64_t nanoseconds);
 
 void timer_print_stats (void);
-bool compareWaketicks(const struct list_elem *,
-                              const struct list_elem *,
-                              void *);
-
+struct sleepThread 
+{
+  int64_t wakeTicks;
+  struct thread *t;
+  struct list_elem elem;
+};
 
 #endif /* devices/timer.h */
