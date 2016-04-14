@@ -281,9 +281,9 @@ compareLockPriority (const struct list_elem *a,
                      const struct list_elem *b,
                      void *aux UNUSED)
 {
-  struct lock *la = list_entry (a, struct lock, elem);
-  struct lock *lb = list_entry (b, struct lock, elem);
-  return la->max_priority > lb->max_priority;
+  struct lock *lock_A = list_entry (a, struct lock, elem);
+  struct lock *lock_B = list_entry (b, struct lock, elem);
+  return lock_A->max_priority > lock_B->max_priority;
 }
 
 
@@ -354,7 +354,7 @@ cond_signal (struct condition *cond, struct lock *lock UNUSED)
 
   if (!list_empty (&cond->waiters)) 
     {
-      list_sort (&cond->waiters, cond_sema_priority_large, NULL);
+      list_sort (&cond->waiters, compareSemaPriority, NULL);
       sema_up (&list_entry (list_pop_front (&cond->waiters),
                             struct semaphore_elem, elem)->semaphore);
     }
@@ -376,20 +376,16 @@ cond_broadcast (struct condition *cond, struct lock *lock)
 }
 
 bool
-cond_sema_priority_large (const struct list_elem *a,
+compareSemaPriority (const struct list_elem *a,
                           const struct list_elem *b,
                           void *aux UNUSED)
 {
-  struct thread *ta;
-  struct thread *tb;
-  struct semaphore_elem *sa = list_entry (a, struct semaphore_elem, elem);
-  struct semaphore_elem *sb = list_entry (b, struct semaphore_elem, elem);
+  struct semaphore_elem *sema_A = list_entry (a, struct semaphore_elem, elem);
+  struct semaphore_elem *sema_B = list_entry (b, struct semaphore_elem, elem);
 
-  ta = list_entry(list_front(&sa->semaphore.waiters),
-                  struct thread, elem);
-  tb = list_entry(list_front(&sb->semaphore.waiters),
-                  struct thread, elem);
-  return ta->priority > tb->priority;
+  struct thread *thread_A = list_entry(list_front(&sema_A->semaphore.waiters),struct thread, elem);
+  struct thread *thread_B = list_entry(list_front(&sema_B->semaphore.waiters),struct thread, elem);
+  return thread_A->priority > thread_B->priority;
 }
 /* Add a held lock to current thread. */
 void// Created
